@@ -4,6 +4,13 @@ header {
   align-items: center;
   background-color: var(--cor-branco);
   height: 55px;
+  position: fixed;
+  top: 0;
+  z-index: 9000;
+}
+
+.menu-icon {
+  align-items: center;
 }
 
 .menu-icon,
@@ -19,6 +26,7 @@ header {
 .logo {
   width: 125px;
 }
+
 .logout {
   display: none;
   color: var(--cor-cinza);
@@ -26,6 +34,10 @@ header {
 }
 
 @media (min-width: 744px) {
+  header {
+    position: inherit;
+  }
+
   .logo {
     width: 150px;
   }

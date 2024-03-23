@@ -2,7 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Cliente } from '../../../../Models/Cliente';
+import { Titular } from '../../../../Models/Titular';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
@@ -20,14 +20,15 @@ export class FormularioEntrarComponent {
     email: new FormControl('',[Validators.required, Validators.email]),
     senha: new FormControl('',[Validators.required])
   });
-  user: Cliente = {
+
+  user: Titular = {
     email: 'sharp@gmail.com',
     senha:'admin123',
+    token:'123123',
     nome: 'Capitonio Nascimento'
   }
 
   exibirModalErro(mensagem: string): void {
-    // Criar um modal Bootstrap para exibir a mensagem de erro
     const modalElement = document.createElement('div');
     modalElement.classList.add('modal', 'fade');
     modalElement.innerHTML = `
@@ -51,21 +52,17 @@ export class FormularioEntrarComponent {
 
     document.body.appendChild(modalElement);
 
-    // Adicionar classe 'show' para exibir o modal
     modalElement.classList.add('show');
     modalElement.style.display = 'block';
 
-    // Adicionar evento de clique para fechar o modal
     const closeModalButton = modalElement.querySelector('.close, .btn-secondary');
 
-    // Verificar se o botão de fechar foi encontrado antes de adicionar o evento
     if (closeModalButton) {
       closeModalButton.addEventListener('click', () => {
-        modalElement.remove(); // Remover o elemento do modal do DOM após fechar
+        modalElement.remove();
       });
     }
 
-    // Fechar automaticamente após 2 segundos
     setTimeout(() => {
       modalElement.remove();
     }, 2000);
@@ -73,12 +70,11 @@ export class FormularioEntrarComponent {
 
   autenticar():void{
     if(this.formLogin.value.email == this.user.email && this.formLogin.value.senha == this.user.senha){
-      localStorage.setItem('email', this.formLogin.value.email)
-      localStorage.setItem('senha', this.formLogin.value.senha)
-      localStorage.setItem('nome', this.user.nome)
-      this.rota.navigateByUrl('/cliente')
+      localStorage.setItem('email', JSON.stringify(this.formLogin.value.email));
+      localStorage.setItem('senha', JSON.stringify(this.formLogin.value.senha));
+      localStorage.setItem('nome', JSON.stringify(this.user.nome));
+      this.rota.navigateByUrl('/login/token')
     }else{
-      // Exibir modal de erro com a mensagem personalizada
       this.exibirModalErro("Senha ou usuário inválidos! Por favor, tente novamente.");
     }
     this.formLogin.reset();

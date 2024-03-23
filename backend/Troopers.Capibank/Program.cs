@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using Troopers.Capibank.Repositories;
+using Troopers.Capibank.Services;
 using Troppers.Capibank.Data.Context;
 
 using Troopers.Capibank.Util.Validators;
@@ -18,24 +21,34 @@ builder.Logging.AddConsole();
 
 // Add services to the container.
 var conexao = builder.Configuration.GetConnectionString("SQLite");
-builder.Services.AddDbContext<CapibankContext>(context => context.UseSqlite(conexao));
 
-builder.Services.AddScoped<IAddressRepository, AddressRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddDbContext<CapibankContext>(context => 
+context.UseSqlite(conexao));
 
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IAddressService, AddressService>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<IContaCorrenteRepository, ContaCorrenteRepository>();
+builder.Services.AddScoped<IContaCorrenteService, ContaCorrenteService>();
+builder.Services.AddScoped<ITitularRepository, TitularRepository>();
+builder.Services.AddScoped<ITitularService, TitularService>();
 
-builder.Services.AddScoped<IValidator<string>, PasswordValidator>();
-
-builder.Services.AddScoped<IMapper<UserEntity, UserDto>, UserMapper>();
-builder.Services.AddScoped<IMapper<AddressEntity, AddressDto>, AddressMapper>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlComentarios = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlComentariosPath = Path.Combine(AppContext.BaseDirectory, xmlComentarios);
+    options.IncludeXmlComments(xmlComentariosPath);
+});
+
+builder.Services.AddCors(option =>
+{
+    option.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
 
 builder.Services.AddExceptionHandler<InvalidPasswordExceptionHandler>();
 
@@ -50,7 +63,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors();
+app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
